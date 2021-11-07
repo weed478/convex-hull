@@ -3,22 +3,12 @@ module Jarvis
 export chjarvis
 
 using ..Geometry
+using ..CH
 
 using LinearAlgebra: det
 
 const e = 1e-4
 orient(a, b, c) = orient3x3(det, e, Segment(a, b), c)
-
-function getfirstpoint(pnts)
-    i0 = 1
-    for i in 2:length(pnts)
-        if pnts[i].y < pnts[i0].y ||
-           (pnts[i].y == pnts[i0].y && pnts[i].x < pnts[i0].x)
-            i0 = i
-        end
-    end
-    i0
-end
 
 function getnextpoint(pnts, i0)
     A = pnts[i0]
@@ -45,7 +35,7 @@ function getnextpoint(pnts, i0)
 end
 
 function chjarvis(pnts::AbstractVector{Point{T}})::AbstractVector{Point{T}} where T
-    i0 = getfirstpoint(pnts)
+    i0 = getbottomleftpoint(pnts)
     i = getnextpoint(pnts, i0)
 
     ch::Vector{Point{T}} = [

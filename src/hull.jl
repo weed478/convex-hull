@@ -2,6 +2,7 @@ module hull
 
 include("geometry.jl")
 include("data.jl")
+include("ch.jl")
 include("chgraham.jl")
 include("chjarvis.jl")
 

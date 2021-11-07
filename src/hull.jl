@@ -71,7 +71,6 @@ function runalgos()
         )
         plot!(
             Tuple.(ch),
-            arrow=true,
             label=false,
         )
         savefig("output/$algo-$name")

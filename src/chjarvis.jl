@@ -23,8 +23,8 @@ function getnextpoint(pnts, i0)
         if o < 0
             i1 = i
         elseif o == 0
-            normAB = sqrt((A.x - B.x)^2 + (A.y - B.y)^2)
-            normAC = sqrt((A.x - C.x)^2 + (A.y - C.y)^2)
+            normAB = abs(A - B)
+            normAC = abs(A - C)
             if normAC > normAB
                 i1 = i
             end

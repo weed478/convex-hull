@@ -23,6 +23,20 @@ Base.convert(::Type{Point{T}}, p::Tuple{T, T}) where T = Point(p)
 Point(::Type{T}, p::Point{T}) where T = p
 Point(::Type{T}, p::Point) where T = Point{T}(T(p.x), T(p.y))
 
+for f in (:+, :-)
+    @eval function Base.$f(A::Point{T}, B::Point{T})::Point{T} where T
+        Point($f(A.x, B.x), $f(A.y, B.y))
+    end
+end
+
+function Base.abs(A::Point{T})::T where T
+    sqrt(abs2(A))
+end
+
+function Base.abs2(A::Point{T})::T where T
+    A.x^2 + A.y^2
+end
+
 # line between 2 points
 struct Segment{T}
     A::Point{T}

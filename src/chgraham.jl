@@ -99,8 +99,19 @@ function chgraham(pnts::AbstractVector{Point{T}})::AbstractVector{Point{T}} wher
     i0 = getbottomleftpoint(pnts)
     inds = sortbyangle(pnts, i0)
     @assert i0 == inds[1]
-    i1 = inds[2]
-    pnts[inds]
+    
+    ch = inds[1:3]
+    i = 4
+    while i <= length(inds)
+        if orient(pnts[[ch[end-1:end]; inds[i]]]...) > 0
+            push!(ch, inds[i])
+            i += 1
+        else
+            pop!(ch)
+        end
+    end
+
+    pnts[ch]
 end
 
 end # module

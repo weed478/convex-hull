@@ -13,6 +13,7 @@ using .Jarvis
 using .Graham
 
 using Plots
+using LinearAlgebra: det
 
 gendefa() = gendataseta(Float64, 100, -100., 100.)
 gendefb() = gendatasetb(Float64, 100, Point(0., 0.), 10.)
@@ -49,7 +50,11 @@ function runalgos()
         gendefd(),
     ]
 
-    algos = [chjarvis, chgraham]
+    e = 1e-4
+    algos = [
+        mkjarvis(orient3x3, det, e),
+        mkgraham(orient3x3, det, e),
+    ]
     
     for d=ds, algo=algos
         name = d.name

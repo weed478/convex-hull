@@ -1,51 +1,50 @@
 module Jarvis
 
-export chjarvis
+export mkjarvis
 
 using ..Geometry
 using ..CH
 
-using LinearAlgebra: det
+function mkjarvis(orientfn, detfn, e)
+    orient(A, B, C) = orientfn(detfn, e, A, B, C)
 
-const e = 1e-4
-orient(a, b, c) = orient3x3(det, e, a, b, c)
+    function getnextpoint(pnts, i0)
+        A = pnts[i0]
+        i1 = i0 == 1 ? 2 : 1
 
-function getnextpoint(pnts, i0)
-    A = pnts[i0]
-    i1 = i0 == 1 ? 2 : 1
+        for i in filter(i -> i != i0, 1:length(pnts))
+            B = pnts[i1]
+            C = pnts[i]
 
-    for i in filter(i -> i != i0, 1:length(pnts))
-        B = pnts[i1]
-        C = pnts[i]
+            o = orient(A, B, C) 
 
-        o = orient(A, B, C) 
-
-        if o < 0
-            i1 = i
-        elseif o == 0
-            normAB = abs(A - B)
-            normAC = abs(A - C)
-            if normAC > normAB
+            if o < 0
                 i1 = i
+            elseif o == 0
+                normAB = abs(A - B)
+                normAC = abs(A - C)
+                if normAC > normAB
+                    i1 = i
+                end
             end
         end
+
+        i1
     end
 
-    i1
-end
+    function chjarvis(pnts::AbstractVector{Point{T}})::AbstractVector{Point{T}} where T
+        i0 = getbottomleftpoint(pnts)
+        i = getnextpoint(pnts, i0)
 
-function chjarvis(pnts::AbstractVector{Point{T}})::AbstractVector{Point{T}} where T
-    i0 = getbottomleftpoint(pnts)
-    i = getnextpoint(pnts, i0)
+        ch::Vector{Point{T}} = [pnts[i0]]
 
-    ch::Vector{Point{T}} = [pnts[i0]]
+        while i != i0
+            push!(ch, pnts[i])
+            i = getnextpoint(pnts, i)
+        end
 
-    while i != i0
-        push!(ch, pnts[i])
-        i = getnextpoint(pnts, i)
+        ch
     end
-
-    ch
-end
+end # makejarvis
 
 end # module

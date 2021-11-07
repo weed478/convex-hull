@@ -10,6 +10,7 @@ using .Geometry
 using .Data
 using .CH
 using .Jarvis
+using .Graham
 
 using Plots
 
@@ -40,25 +41,27 @@ function visualizedatasets()
     nothing
 end
 
-function runjarvis()
+function runalgos()
     ds = [
         gendefa(),
         gendefb(),
         gendefc(),
         gendefd(),
     ]
+
+    algos = [chjarvis, chgraham]
     
-    for d=ds
+    for d=ds, algo=algos
         name = d.name
 
-        ch = chjarvis(d.pnts)
-        savech("output/jarvis-$name.txt", ch)
+        ch = algo(d.pnts)
+        savech("output/$algo-$name.txt", ch)
 
         scatter(
             Tuple.(d.pnts),
             ratio=1,
             label=false,
-            title="Jarvis $name",
+            title="$algo $name",
         )
         scatter!(
             Tuple.(ch),
@@ -68,15 +71,16 @@ function runjarvis()
         )
         plot!(
             Tuple.(ch),
+            arrow=true,
             label=false,
         )
-        savefig("output/jarvis-$name")
+        savefig("output/$algo-$name")
     end
 end
 
 function main()
     visualizedatasets()
-    runjarvis()
+    runalgos()
 
     nothing
 end

@@ -38,14 +38,11 @@ function chjarvis(pnts::AbstractVector{Point{T}})::AbstractVector{Point{T}} wher
     i0 = getbottomleftpoint(pnts)
     i = getnextpoint(pnts, i0)
 
-    ch::Vector{Point{T}} = [
-        pnts[i0],
-        pnts[i],
-    ]
+    ch::Vector{Point{T}} = [pnts[i0]]
 
     while i != i0
-        i = getnextpoint(pnts, i)
         push!(ch, pnts[i])
+        i = getnextpoint(pnts, i)
     end
 
     ch

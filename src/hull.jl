@@ -8,6 +8,7 @@ include("chjarvis.jl")
 
 using .Geometry
 using .Data
+using .CH
 using .Jarvis
 
 using Plots
@@ -51,12 +52,19 @@ function runjarvis()
         name = d.name
 
         ch = chjarvis(d.pnts)
+        savech("output/jarvis-$name.txt", ch)
 
         scatter(
             Tuple.(d.pnts),
             ratio=1,
             label=false,
             title="Jarvis $name",
+        )
+        scatter!(
+            Tuple.(ch),
+            color=:red,
+            markersize=5,
+            label=false,
         )
         plot!(
             Tuple.(ch),

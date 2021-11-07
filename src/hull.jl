@@ -30,7 +30,7 @@ function visualizedatasets()
             Tuple.(d.pnts),
             ratio=1,
             label=false,
-            caption="Dataset $name",
+            title="Dataset $name",
         )
         savefig("output/dataset-$name")
     end
@@ -55,7 +55,7 @@ function runjarvis()
             Tuple.(d.pnts),
             ratio=1,
             label=false,
-            caption="Jarvis $name",
+            title="Jarvis $name",
         )
         plot!(
             Tuple.(ch),

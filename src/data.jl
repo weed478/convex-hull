@@ -8,6 +8,10 @@ export Dataset,
 
 using ..Geometry
 
+import Random
+
+const SEED = 42
+
 struct Dataset{T}
     name::String
     pnts::AbstractVector{Point{T}}
@@ -28,89 +32,87 @@ Dataset(::Type{T}, d::Dataset) where T = Dataset{T}(
 )
 
 # generate n random numbers in range [lo,hi]
-function uniformrandom(::Type{T}, n::Integer, lo::T, hi::T)::Vector{T} where T
+function runif(::Type{T}, n::Integer, lo::T, hi::T)::Vector{T} where T
     rand(T, n) * (hi - lo) .+ lo
 end
 
-function gendataseta(::Type{T})::Dataset{T} where T
+function gendataseta(::Type{T}, n::Integer, lo::T, hi::T)::Dataset{T} where T
+    Random.seed!(SEED)
     Dataset{T}(
         "A",
-        genpoints(
-            T,
-            Rect{T}(Point{T}(-1000, -1000), Point{T}(1000, 1000)),
-            10^5
-        ),
-        Segment{T}(
-            Point{T}(-1, 0),
-            Point{T}(1, .1)
-        ),
-        T(100),
-        T(0),
-        T(200),
-        1
+        Point.(zip(runif(T, n, lo, hi), runif(T, n, lo, hi))),
     )
 end
 
-function gendatasetb(::Type{T})::Dataset{T} where T
+function gendatasetb(::Type{T}, n::Integer, O::Point{T}, r::T)::Dataset{T} where T
+    Random.seed!(SEED)
     Dataset{T}(
         "B",
-        genpoints(
-            T,
-            Rect{T}(Point{T}(-10^14, -10^14), Point{T}(10^14, 10^14)),
-            10^5
-        ),
-        Segment{T}(
-            Point{T}(-1, 0),
-            Point{T}(1, .1)
-        ),
-        T(10e12),
-        T(1e12),
-        T(20e12),
-        1
+        map(runif(T, n, T(0), T(2pi))) do phi
+            x::T = O.x + r * cos(phi)
+            y::T = O.y + r * sin(phi)
+            Point{T}(x, y)
+        end,
     )
 end
 
-function gendatasetc(::Type{T})::Dataset{T} where T
+function gendatasetc(::Type{T}, n::Integer, A::Point{T}, B::Point{T})::Dataset{T} where T
+    Random.seed!(SEED)
     Dataset{T}(
         "C",
-        genpoints(
-            T,
-            Circle{T}(Point{T}(0, 0), 100),
-            1000
-        ),
-        Segment{T}(
-            Point{T}(-1, 0),
-            Point{T}(1, .1)
-        ),
-        T(10),
-        T(0),
-        T(250),
-        2
+        map(runif(T, n, T(0), T(1))) do scale
+            side = rand(1:4)
+            Point(
+                if side == 1
+                    #  A*---*
+                    #
+                    #   *   *B
+                    A.x + scale * (B.x - A.x),
+                    A.y
+                elseif side == 2
+                    #  A*   *
+                    #
+                    #   *---*B
+                    A.x + scale * (B.x - A.x),
+                    B.y
+                elseif side == 3
+                    #  A*   *
+                    #   |
+                    #   *   *B
+                    A.x,
+                    A.y + scale * (B.y - A.y)
+                elseif side == 4
+                    #  A*   *
+                    #       |
+                    #   *   *B
+                    B.x,
+                    A.y + scale * (B.y - A.y)
+                end
+            )
+        end,
     )
 end
 
-function gendatasetd(::Type{T})::Dataset{T} where T
-    # gen X coords
-    xs = uniformrandom(T, 1000, T(-1000), T(1000))
-
-    A = Point{T}(-1, 0)
-    B = Point{T}(1, .1)
-
-    # calculate line equation
-    f = tofunction(Segment{T}(A, B))
-
+function gendatasetd(::Type{T}, n1::Integer, n2::Integer, A::Point{T}, B::Point{T})::Dataset{T} where T
+    Random.seed!(SEED)
     Dataset{T}(
         "D",
-        # for each generated X calculate Y
-        Point.(zip(xs, f.(xs))) |> collect,
-        Segment{T}(
-            Point{T}(-1, 0),
-            Point{T}(1, .1)
-        ),
-        T(1e-15),
-        T(0),
-        T(2e-14),
-        2
+        [map(runif(T, n1, T(0), T(1))) do scale
+            A.x + scale * (B.x - A.x),
+            A.y
+        end;
+        map(runif(T, n1, T(0), T(1))) do scale
+            A.x,
+            A.y + scale * (B.y - A.y)
+        end;
+        map(runif(T, n2, T(0), T(1))) do scale
+            A.x + scale * (B.x - A.x),
+            A.y + scale * (B.y - A.y)
+        end;
+        map(runif(T, n2, T(0), T(1))) do scale
+            B.x + scale * (A.x - B.x),
+            A.y + scale * (B.y - A.y)
+        end],
     )
 end
 

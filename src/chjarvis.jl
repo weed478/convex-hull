@@ -8,7 +8,7 @@ using ..CH
 using LinearAlgebra: det
 
 const e = 1e-4
-orient(a, b, c) = orient3x3(det, e, Segment(a, b), c)
+orient(a, b, c) = orient3x3(det, e, a, b, c)
 
 function getnextpoint(pnts, i0)
     A = pnts[i0]

@@ -109,22 +109,28 @@ function gendatasetd(::Type{T}, n1::Integer, n2::Integer, A::Point{T}, B::Point{
     Random.seed!(SEED)
     Dataset{T}(
         "D",
-        [map(runif(T, n1, T(0), T(1))) do scale
-            A.x + scale * (B.x - A.x),
-            A.y
-        end;
-        map(runif(T, n1, T(0), T(1))) do scale
-            A.x,
-            A.y + scale * (B.y - A.y)
-        end;
-        map(runif(T, n2, T(0), T(1))) do scale
-            A.x + scale * (B.x - A.x),
-            A.y + scale * (B.y - A.y)
-        end;
-        map(runif(T, n2, T(0), T(1))) do scale
-            B.x + scale * (A.x - B.x),
-            A.y + scale * (B.y - A.y)
-        end],
+        [
+            Point(A.x, A.y);
+            Point(A.x, B.y);
+            Point(B.x, A.y);
+            Point(B.x, B.y);
+            map(runif(T, n1, T(0), T(1))) do scale
+                A.x + scale * (B.x - A.x),
+                A.y
+            end;
+            map(runif(T, n1, T(0), T(1))) do scale
+                A.x,
+                A.y + scale * (B.y - A.y)
+            end;
+            map(runif(T, n2, T(0), T(1))) do scale
+                A.x + scale * (B.x - A.x),
+                A.y + scale * (B.y - A.y)
+            end;
+            map(runif(T, n2, T(0), T(1))) do scale
+                B.x + scale * (A.x - B.x),
+                A.y + scale * (B.y - A.y)
+            end
+        ],
     )
 end
 

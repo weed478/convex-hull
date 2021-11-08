@@ -15,6 +15,16 @@ using .Graham
 using Plots
 using LinearAlgebra: det
 
+function manualdet(M::Matrix{T})::T where T
+    if size(M) == (2, 2)
+        M[1,1] * M[2,2] - M[1,2] * M[2,1]
+    elseif size(M) == (3, 3)
+          M[1,1] * M[2,2] * M[3,3] + M[1,2] * M[2,3] * M[3,1] + M[1,3] * M[2,1] * M[3,2] - M[3,1] * M[2,2] * M[1,3] - M[3,2] * M[2,3] * M[1,1] - M[3,3] * M[2,1] * M[1,2]
+    else
+        error("Invalid matrix size $(size(M))")
+    end
+end
+
 gendefa() = gendataseta(Float64, 100, -100., 100.)
 gendefb() = gendatasetb(Float64, 100, Point(0., 0.), 10.)
 gendefc() = gendatasetc(Float64, 100, Point(-10., -10.), Point(10., 10.))
@@ -52,8 +62,8 @@ function runalgos()
 
     e = 1e-4
     algos = [
-        mkjarvis(orient3x3, det, e),
-        mkgraham(orient3x3, det, e),
+        mkjarvis(orient2x2, manualdet, e),
+        mkgraham(orient2x2, manualdet, e),
     ]
     
     for d=ds, algo=algos
@@ -75,7 +85,7 @@ function runalgos()
             label=false,
         )
         plot!(
-            Tuple.(ch),
+            Tuple.([ch; ch[1]]),
             label=false,
         )
         savefig("output/$algo-$name")

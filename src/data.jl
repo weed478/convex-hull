@@ -58,10 +58,22 @@ end
 
 function gendatasetc(::Type{T}, n::Integer, A::Point{T}, B::Point{T})::Dataset{T} where T
     Random.seed!(SEED)
+    circ = 2abs(A.x - B.x) + 2abs(A.y - B.y)
+    sidehorizprob = abs(A.x - B.x) / circ
+    sidevertprob = abs(A.y - B.y) / circ
     Dataset{T}(
         "C",
         map(runif(T, n, T(0), T(1))) do scale
-            side = rand(1:4)
+            side = rand(T)
+            if side < sidehorizprob
+                side = 1
+            elseif side < 2sidehorizprob
+                side = 2
+            elseif side < 2sidehorizprob + sidevertprob
+                side = 3
+            else
+                side = 4
+            end
             Point(
                 if side == 1
                     #  A*---*

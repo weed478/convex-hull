@@ -60,7 +60,7 @@ function runalgos()
         gendefd(),
     ]
 
-    e = 1e-4
+    e = eps(1000.)
     algos = [
         mkjarvis(orient2x2, manualdet, e),
         mkgraham(orient2x2, manualdet, e),

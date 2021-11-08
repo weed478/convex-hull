@@ -14,6 +14,7 @@ using .Graham
 
 using Plots
 using LinearAlgebra: det
+using DataFrames
 
 function manualdet(M::Matrix{T})::T where T
     if size(M) == (2, 2)
@@ -92,9 +93,55 @@ function runalgos()
     end
 end
 
+function runbenchmarks()
+    mkds = [
+        n -> gendataseta(Float64, n, -100., 100.),
+        n -> gendatasetb(Float64, n, Point(0., 0.), 10.),
+        n -> gendatasetc(Float64, n, Point(-10., -10.), Point(10., 10.)),
+        n -> gendatasetd(Float64, n, n, Point(0., 0.), Point(10., 10.)),
+    ]
+
+    e = eps(1000.)
+    mkalgos = [
+        function jarvis() mkjarvis(orient2x2, manualdet, e) end,
+        function graham() mkgraham(orient2x2, manualdet, e) end,
+    ]
+
+    df = DataFrame(:n => 10:10:1000)
+    
+    for mkd=mkds, mkalgo=mkalgos
+        T = zeros(Float64, length(df.n))
+        dname = mkd(1).name
+        for ni=1:length(df.n)
+            algo = mkalgo()
+            d = mkd(df.n[ni])
+            t1 = @elapsed algo(d.pnts)
+            t2 = @elapsed algo(d.pnts)
+            T[ni] = min(t1, t2)
+        end
+        insertcols!(df, "$(dname)-$mkalgo" => T)
+    end
+
+    for d='A':'D'
+        plot(
+            df.n[2:end],
+            df[2:end, "$d-graham"],
+            label="graham",
+            title="Dataset $d",
+        )
+        plot!(
+            df.n[2:end],
+            df[2:end, "$d-jarvis"],
+            label="jarvis",
+        )
+        savefig("output/bench-$d")
+    end
+end
+
 function main()
     visualizedatasets()
     runalgos()
+    runbenchmarks()
 
     nothing
 end

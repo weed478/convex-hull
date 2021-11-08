@@ -126,12 +126,16 @@ function runbenchmarks()
         plot(
             df.n[2:end],
             df[2:end, "$d-graham"],
+            xlabel="Number of points",
+            ylabel="Time [s]",
             label="graham",
             title="Dataset $d",
         )
         plot!(
             df.n[2:end],
             df[2:end, "$d-jarvis"],
+            xlabel="Number of points",
+            ylabel="Time [s]",
             label="jarvis",
         )
         savefig("output/bench-$d")

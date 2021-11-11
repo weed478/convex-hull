@@ -7,12 +7,18 @@ using ..Geometry
 using ..CH
 
 struct GrahamStep{T}
+    remaining::Vector{Point{T}}
     ch::Vector{Point{T}}
     current::Point{T}
     ok::Bool
 end
 
-GrahamStep(; ch, current, ok) = GrahamStep(ch, current, ok)
+GrahamStep(; remaining, ch, current, ok) = GrahamStep(
+    remaining,
+    ch,
+    current,
+    ok
+)
 
 function mkgraham(orientfn, detfn, e)
     orient(A, B, C) = orientfn(detfn, e, A, B, C)
@@ -119,6 +125,7 @@ function mkgraham(orientfn, detfn, e)
         while i <= length(inds)
             if orient(pnts[[ch[end-1:end]; inds[i]]]...) > 0
                 pushstep!(GrahamStep(
+                    remaining=pnts[inds[i+1:end]],
                     ch=pnts[ch],
                     current=pnts[inds[i]],
                     ok=true,
@@ -127,6 +134,7 @@ function mkgraham(orientfn, detfn, e)
                 i += 1
             else
                 pushstep!(GrahamStep(
+                    remaining=pnts[inds[i+1:end]],
                     ch=pnts[ch],
                     current=pnts[inds[i]],
                     ok=false,
@@ -136,6 +144,7 @@ function mkgraham(orientfn, detfn, e)
         end
 
         pushstep!(GrahamStep(
+            remaining=Vector{Point{T}}(),
             ch=pnts[[ch; ch[1]]],
             current=pnts[ch[1]],
             ok=true,

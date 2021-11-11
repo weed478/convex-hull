@@ -167,12 +167,12 @@ function visualizegraham()
         savefig("output/anim-graham-$name/0")
         for (i, step)=enumerate(steps)
             scatter(
-                Tuple.(d.pnts),
+                Tuple.(step.remaining),
                 color=:blue,
-                opacity=0.2,
+                opacity=0.3,
                 ratio=1,
                 title="Step $i",
-                label=false,
+                label="Remaining",
             )
             scatter!(
                 Tuple.(step.ch),

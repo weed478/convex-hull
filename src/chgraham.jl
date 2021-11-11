@@ -6,9 +6,13 @@ export mkgraham,
 using ..Geometry
 using ..CH
 
-struct GrahamStep
-
+struct GrahamStep{T}
+    ch::Vector{Point{T}}
+    current::Point{T}
+    ok::Bool
 end
+
+GrahamStep(; ch, current, ok) = GrahamStep(ch, current, ok)
 
 function mkgraham(orientfn, detfn, e)
     orient(A, B, C) = orientfn(detfn, e, A, B, C)
@@ -99,6 +103,13 @@ function mkgraham(orientfn, detfn, e)
     end
 
     function chgraham(pnts::Vector{Point{T}}; steps=missing)::Vector{Point{T}} where T
+        function pushstep!(step)
+            if !ismissing(steps)
+                push!(steps, step)
+            end
+            nothing
+        end
+
         i0 = getbottomleftpoint(pnts)
         inds = sortbyangle(pnts, i0)
         @assert i0 == inds[1]
@@ -107,12 +118,28 @@ function mkgraham(orientfn, detfn, e)
         i = 4
         while i <= length(inds)
             if orient(pnts[[ch[end-1:end]; inds[i]]]...) > 0
+                pushstep!(GrahamStep(
+                    ch=pnts[ch],
+                    current=pnts[inds[i]],
+                    ok=true,
+                ))
                 push!(ch, inds[i])
                 i += 1
             else
+                pushstep!(GrahamStep(
+                    ch=pnts[ch],
+                    current=pnts[inds[i]],
+                    ok=false,
+                ))
                 pop!(ch)
             end
         end
+
+        pushstep!(GrahamStep(
+            ch=pnts[[ch; ch[1]]],
+            current=pnts[ch[1]],
+            ok=true,
+        ))
 
         pnts[ch]
     end

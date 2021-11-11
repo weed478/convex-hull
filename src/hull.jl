@@ -141,10 +141,66 @@ function runbenchmarks()
     end
 end
 
+function visualizegraham()
+    ds = [
+        gendefa(),
+        gendefb(),
+        gendefc(),
+        gendefd(),
+    ]
+
+    e = eps(1000.)
+    algo = mkgraham(orient2x2, manualdet, e)
+    
+    for d=ds
+        name = d.name
+        mkpath("output/anim-graham-$name")
+        steps = Vector{GrahamStep}()
+        algo(d.pnts, steps=steps)
+
+        scatter(
+            Tuple.(d.pnts),
+            color=:blue,
+            ratio=1,
+            title="Step 0",
+        )
+        savefig("output/anim-graham-$name/0")
+        for (i, step)=enumerate(steps)
+            scatter(
+                Tuple.(d.pnts),
+                color=:blue,
+                opacity=0.2,
+                ratio=1,
+                title="Step $i",
+                label=false,
+            )
+            scatter!(
+                Tuple.(step.ch),
+                color=:green,
+                label="Hull"
+            )
+            plot!(
+                Tuple.(step.ch),
+                color=:green,
+                line=:arrow,
+                label=false,
+            )
+            scatter!(
+                Tuple.([step.current]),
+                color=step.ok ? :green : :red,
+                markersize=5,
+                label="Current ($(step.ok ? "good" : "bad"))"
+            )
+            savefig("output/anim-graham-$name/$i")
+        end
+    end
+end
+
 function main()
     visualizedatasets()
     runalgos()
     runbenchmarks()
+    visualizegraham()
 
     nothing
 end

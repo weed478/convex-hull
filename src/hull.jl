@@ -203,11 +203,91 @@ function visualizegraham()
     end
 end
 
+function visualizejarvis()
+    ds = [
+        gendefa(),
+        gendefb(),
+        gendefc(),
+        gendefd(),
+    ]
+
+    e = eps(1000.)
+    algo = mkjarvis(orient2x2, manualdet, e)
+    
+    for d=ds
+        name = d.name
+        mkpath("output/anim-jarvis-$name")
+        steps = Vector{JarvisStep}()
+        algo(d.pnts, steps=steps)
+
+        anim = Animation()
+
+        scatter(
+            Tuple.(d.pnts),
+            color=:blue,
+            ratio=1,
+            title="Step 0",
+        )
+        frame(anim)
+        savefig("output/anim-jarvis-$name/0")
+
+        for (i, step)=enumerate(steps)
+            scatter(
+                Tuple.(d.pnts),
+                color=:blue,
+                opacity=0.3,
+                ratio=1,
+                title="Step $i",
+                label=false,
+            )
+            scatter!(
+                Tuple.(step.ch),
+                color=:green,
+                label="Hull"
+            )
+            plot!(
+                Tuple.(step.ch),
+                color=:green,
+                label=false,
+            )
+            scatter!(
+                Tuple.([step.best]),
+                color=:red,
+                markersize=8,
+                label="Best",
+            )
+            plot!(
+                Tuple.([step.ch[end], step.best]),
+                color=:red,
+                line=:arrow,
+                label=false,
+            )
+            scatter!(
+                Tuple.([step.current]),
+                color=[step.isnewbest ? :green : :orange],
+                markersize=8,
+                label="Current$(step.isnewbest ? " (new best)" : ""))",
+            )
+            plot!(
+                Tuple.([step.ch[end], step.current]),
+                color=:orange,
+                line=:arrow,
+                label=false,
+            )
+            frame(anim)
+            savefig("output/anim-jarvis-$name/$i")
+        end
+
+        gif(anim, "output/anim-jarvis-$name.gif", fps=30)
+    end
+end
+
 function main()
     visualizedatasets()
     runalgos()
     runbenchmarks()
     visualizegraham()
+    visualizejarvis()
 
     nothing
 end

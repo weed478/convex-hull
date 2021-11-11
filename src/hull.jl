@@ -102,38 +102,37 @@ function runbenchmarks()
     ]
 
     e = eps(1000.)
-    mkalgos = [
-        function jarvis() mkjarvis(orient2x2, manualdet, e) end,
-        function graham() mkgraham(orient2x2, manualdet, e) end,
+    algos = [
+        mkjarvis(orient2x2, manualdet, e),
+        mkgraham(orient2x2, manualdet, e),
     ]
 
     df = DataFrame(:n => 10:10:1000)
     
-    for mkd=mkds, mkalgo=mkalgos
-        T = zeros(Float64, length(df.n))
-        dname = mkd(1).name
-        for ni=1:length(df.n)
-            algo = mkalgo()
-            d = mkd(df.n[ni])
-            t1 = @elapsed algo(d.pnts)
-            t2 = @elapsed algo(d.pnts)
-            T[ni] = min(t1, t2)
+    for mkd=mkds, algo=algos
+        T = fill(Inf, length(df.n))
+        ds = mkd.(df.n)
+        dname = ds[1].name
+        for sample=1:4, i=1:length(ds)
+            d = ds[i]
+            t = @elapsed algo(d.pnts)
+            T[i] = min(T[i], t)
         end
-        insertcols!(df, "$(dname)-$mkalgo" => T)
+        insertcols!(df, "$dname-$algo" => T)
     end
 
     for d='A':'D'
         plot(
-            df.n[2:end],
-            df[2:end, "$d-graham"],
+            df.n,
+            df[:, "$d-chgraham"],
             xlabel="Number of points",
             ylabel="Time [s]",
             label="graham",
             title="Dataset $d",
         )
         plot!(
-            df.n[2:end],
-            df[2:end, "$d-jarvis"],
+            df.n,
+            df[:, "$d-chjarvis"],
             xlabel="Number of points",
             ylabel="Time [s]",
             label="jarvis",

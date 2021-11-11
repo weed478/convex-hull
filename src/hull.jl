@@ -158,13 +158,17 @@ function visualizegraham()
         steps = Vector{GrahamStep}()
         algo(d.pnts, steps=steps)
 
+        anim = Animation()
+
         scatter(
             Tuple.(d.pnts),
             color=:blue,
             ratio=1,
             title="Step 0",
         )
+        frame(anim)
         savefig("output/anim-graham-$name/0")
+
         for (i, step)=enumerate(steps)
             scatter(
                 Tuple.(step.remaining),
@@ -191,8 +195,11 @@ function visualizegraham()
                 markersize=5,
                 label="Current ($(step.ok ? "good" : "bad"))"
             )
+            frame(anim)
             savefig("output/anim-graham-$name/$i")
         end
+
+        gif(anim, "output/anim-graham-$name.gif", fps=15)
     end
 end
 

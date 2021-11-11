@@ -1,14 +1,19 @@
 module Graham
 
-export mkgraham
+export mkgraham,
+       GrahamStep
 
 using ..Geometry
 using ..CH
 
+struct GrahamStep
+
+end
+
 function mkgraham(orientfn, detfn, e)
     orient(A, B, C) = orientfn(detfn, e, A, B, C)
 
-    function ltorient(pnts, ia) where T
+    function ltorient(pnts, ia)
         function (ib, ic)
             if ic == ia
                 return false
@@ -19,7 +24,7 @@ function mkgraham(orientfn, detfn, e)
         end
     end
 
-    function sortbyangle(pnts::AbstractVector{Point{T}}, i0::Integer)::AbstractVector{Integer} where T
+    function sortbyangle(pnts, i0)
         lt = ltorient(pnts, i0)
 
         function merge(t1, t2)
@@ -93,7 +98,7 @@ function mkgraham(orientfn, detfn, e)
         sort(1:length(pnts))
     end
 
-    function chgraham(pnts::AbstractVector{Point{T}})::AbstractVector{Point{T}} where T
+    function chgraham(pnts::Vector{Point{T}}; steps=missing)::Vector{Point{T}} where T
         i0 = getbottomleftpoint(pnts)
         inds = sortbyangle(pnts, i0)
         @assert i0 == inds[1]

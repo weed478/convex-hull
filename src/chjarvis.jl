@@ -5,6 +5,10 @@ export mkjarvis
 using ..Geometry
 using ..CH
 
+struct JarvisStep
+
+end
+
 function mkjarvis(orientfn, detfn, e)
     orient(A, B, C) = orientfn(detfn, e, A, B, C)
 
@@ -32,7 +36,7 @@ function mkjarvis(orientfn, detfn, e)
         i1
     end
 
-    function chjarvis(pnts::AbstractVector{Point{T}})::AbstractVector{Point{T}} where T
+    function chjarvis(pnts::Vector{Point{T}}; steps=missing)::Vector{Point{T}} where T
         i0 = getbottomleftpoint(pnts)
         i = getnextpoint(pnts, i0)
 

@@ -14,12 +14,12 @@ const SEED = 42
 
 struct Dataset{T}
     name::String
-    pnts::AbstractVector{Point{T}}
+    pnts::Vector{Point{T}}
 end
 
 Dataset(
     name::String,
-    pnts::AbstractVector{Point{T}},
+    pnts::Vector{Point{T}},
 ) where T = Dataset{T}(
     name,
     pnts,
@@ -32,11 +32,11 @@ Dataset(::Type{T}, d::Dataset) where T = Dataset{T}(
 )
 
 # generate n random numbers in range [lo,hi]
-function runif(::Type{T}, n::Integer, lo::T, hi::T)::Vector{T} where T
+function runif(::Type{T}, n::Int, lo::T, hi::T)::Vector{T} where T
     rand(T, n) * (hi - lo) .+ lo
 end
 
-function gendataseta(::Type{T}, n::Integer, lo::T, hi::T)::Dataset{T} where T
+function gendataseta(::Type{T}, n::Int, lo::T, hi::T)::Dataset{T} where T
     Random.seed!(SEED)
     Dataset{T}(
         "A",
@@ -44,7 +44,7 @@ function gendataseta(::Type{T}, n::Integer, lo::T, hi::T)::Dataset{T} where T
     )
 end
 
-function gendatasetb(::Type{T}, n::Integer, O::Point{T}, r::T)::Dataset{T} where T
+function gendatasetb(::Type{T}, n::Int, O::Point{T}, r::T)::Dataset{T} where T
     Random.seed!(SEED)
     Dataset{T}(
         "B",
@@ -56,7 +56,7 @@ function gendatasetb(::Type{T}, n::Integer, O::Point{T}, r::T)::Dataset{T} where
     )
 end
 
-function gendatasetc(::Type{T}, n::Integer, A::Point{T}, B::Point{T})::Dataset{T} where T
+function gendatasetc(::Type{T}, n::Int, A::Point{T}, B::Point{T})::Dataset{T} where T
     Random.seed!(SEED)
     circ = 2abs(A.x - B.x) + 2abs(A.y - B.y)
     sidehorizprob = abs(A.x - B.x) / circ
@@ -105,7 +105,7 @@ function gendatasetc(::Type{T}, n::Integer, A::Point{T}, B::Point{T})::Dataset{T
     )
 end
 
-function gendatasetd(::Type{T}, n1::Integer, n2::Integer, A::Point{T}, B::Point{T})::Dataset{T} where T
+function gendatasetd(::Type{T}, n1::Int, n2::Int, A::Point{T}, B::Point{T})::Dataset{T} where T
     Random.seed!(SEED)
     Dataset{T}(
         "D",

@@ -206,7 +206,7 @@ end
 function visualizejarvis()
     ds = [
         gendefa(),
-        gendefb(),
+        gendatasetb(Float64, 10, Point(0., 0.), 10.),
         gendefc(),
         gendefd(),
     ]

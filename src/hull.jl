@@ -319,6 +319,18 @@ function breakthings()
     savech("output/broken-graham-D.txt", ch)
     plotch(ds[2], "graham", ch)
     savefig("output/broken-graham-D")
+
+    algo = mkjarvis(orient2x2, det, eps(1f-20))
+
+    ch = algo(ds[1].pnts)
+    savech("output/broken-jarvis-C.txt", ch)
+    plotch(ds[1], "jarvis", ch)
+    savefig("output/broken-jarvis-C")
+
+    ch = algo(ds[2].pnts)
+    savech("output/broken-jarvis-D.txt", ch)
+    plotch(ds[2], "jarvis", ch)
+    savefig("output/broken-jarvis-D")
 end
 
 function main()

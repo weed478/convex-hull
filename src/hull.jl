@@ -282,12 +282,52 @@ function visualizejarvis()
     end
 end
 
+function plotch(d, algo, ch)
+    name = d.name
+    scatter(
+        Tuple.(d.pnts),
+        ratio=1,
+        label=false,
+        title="$algo $name",
+    )
+    scatter!(
+        Tuple.(ch),
+        color=:red,
+        markersize=5,
+        label=false,
+    )
+    plot!(
+        Tuple.([ch; ch[1]]),
+        label=false,
+    )
+end
+
+function breakthings()
+    ds = [
+        gendatasetc(Float32, 100, Point(-1f20, -1f20), Point(1f20, 1f20)),
+        gendatasetd(Float32, 25, 20, Point(0f0, 0f0), Point(1f20, 1f20)),
+    ]
+
+    algo = mkgraham(orient2x2, det, eps(1f-20))
+
+    ch = algo(ds[1].pnts)
+    savech("output/broken-graham-C.txt", ch)
+    plotch(ds[1], "graham", ch)
+    savefig("output/broken-graham-C")
+
+    ch = algo(ds[2].pnts)
+    savech("output/broken-graham-D.txt", ch)
+    plotch(ds[2], "graham", ch)
+    savefig("output/broken-graham-D")
+end
+
 function main()
     visualizedatasets()
     runalgos()
     runbenchmarks()
     visualizegraham()
     visualizejarvis()
+    breakthings()
 
     nothing
 end

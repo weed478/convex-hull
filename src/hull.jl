@@ -61,13 +61,18 @@ function runalgos()
         gendefd(),
     ]
 
-    e = eps(1000.)
+    e = 1e-20
     algos = [
         mkjarvis(orient2x2, manualdet, e),
         mkgraham(orient2x2, manualdet, e),
     ]
+
+    algonames = [
+        "Jarvis",
+        "Graham",
+    ]
     
-    for d=ds, algo=algos
+    for d=ds, (algo, algoname)=zip(algos, algonames)
         name = d.name
 
         ch = algo(d.pnts)
@@ -77,7 +82,7 @@ function runalgos()
             Tuple.(d.pnts),
             ratio=1,
             label=false,
-            title="$algo $name",
+            title="$algoname, Dataset $name",
         )
         scatter!(
             Tuple.(ch),
@@ -101,7 +106,7 @@ function runbenchmarks()
         n -> gendatasetd(Float64, n, n, Point(0., 0.), Point(10., 10.)),
     ]
 
-    e = eps(1000.)
+    e = 1e-20
     algos = [
         mkjarvis(orient2x2, manualdet, e),
         mkgraham(orient2x2, manualdet, e),
@@ -149,7 +154,7 @@ function visualizegraham()
         gendefd(),
     ]
 
-    e = eps(1000.)
+    e = 1e-20
     algo = mkgraham(orient2x2, manualdet, e)
     
     for d=ds
@@ -211,7 +216,7 @@ function visualizejarvis()
         gendefd(),
     ]
 
-    e = eps(1000.)
+    e = 1e-20
     algo = mkjarvis(orient2x2, manualdet, e)
     
     for d=ds
@@ -288,7 +293,7 @@ function plotch(d, algo, ch)
         Tuple.(d.pnts),
         ratio=1,
         label=false,
-        title="$algo $name",
+        title="$algo, Dataset $name",
     )
     scatter!(
         Tuple.(ch),
@@ -308,28 +313,28 @@ function breakthings()
         gendatasetd(Float32, 25, 20, Point(0f0, 0f0), Point(1f20, 1f20)),
     ]
 
-    algo = mkgraham(orient2x2, det, eps(1f-20))
+    algo = mkgraham(orient2x2, det, 1f-20)
 
     ch = algo(ds[1].pnts)
     savech("output/broken-graham-C.txt", ch)
-    plotch(ds[1], "graham", ch)
+    plotch(ds[1], "Graham", ch)
     savefig("output/broken-graham-C")
 
     ch = algo(ds[2].pnts)
     savech("output/broken-graham-D.txt", ch)
-    plotch(ds[2], "graham", ch)
+    plotch(ds[2], "Graham", ch)
     savefig("output/broken-graham-D")
 
-    algo = mkjarvis(orient2x2, det, eps(1f-20))
+    algo = mkjarvis(orient2x2, det, 1f-20)
 
     ch = algo(ds[1].pnts)
     savech("output/broken-jarvis-C.txt", ch)
-    plotch(ds[1], "jarvis", ch)
+    plotch(ds[1], "Jarvis", ch)
     savefig("output/broken-jarvis-C")
 
     ch = algo(ds[2].pnts)
     savech("output/broken-jarvis-D.txt", ch)
-    plotch(ds[2], "jarvis", ch)
+    plotch(ds[2], "Jarvis", ch)
     savefig("output/broken-jarvis-D")
 end
 

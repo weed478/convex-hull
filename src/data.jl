@@ -1,3 +1,6 @@
+# Generowanie danych
+# Wszystkie typy są podane aby nic się samo nie zamieniło
+
 module Data
 
 export Dataset,

@@ -6,6 +6,7 @@ export mkjarvis,
 using ..Geometry
 using ..CH
 
+# do animacji
 struct JarvisStep{T}
     ch::Vector{Point{T}}
     current::Point{T}
@@ -13,6 +14,7 @@ struct JarvisStep{T}
     isnewbest::Bool
 end
 
+# funckja budująca algorytm tak jak w chgraham.jl
 function mkjarvis(orientfn, detfn, e)
     orient(A, B, C) = orientfn(detfn, e, A, B, C)
 
@@ -24,8 +26,10 @@ function mkjarvis(orientfn, detfn, e)
             nothing
         end
 
+        # tutaj ch zawiera same punkty
         ch::Vector{Point{T}} = Vector{Point{T}}()
 
+        # szuka kolejnego punktu zgodnie z algo jarvisa
         function getnextpoint(i0)
             A = pnts[i0]
             i1 = i0 == 1 ? 2 : 1
@@ -42,6 +46,7 @@ function mkjarvis(orientfn, detfn, e)
                     isnewbest = true
                     i1 = i
                 elseif o == 0
+                    # przypadek wspóliniowy
                     normAB = abs(A - B)
                     normAC = abs(A - C)
                     if normAC > normAB
@@ -65,6 +70,7 @@ function mkjarvis(orientfn, detfn, e)
         push!(ch, pnts[i0])
         i = getnextpoint(i0)
 
+        # główna pętla algorytmu
         while i != i0
             push!(ch, pnts[i])
             i = getnextpoint(i)

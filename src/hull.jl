@@ -1,3 +1,5 @@
+# Główny plik programu
+
 module hull
 
 include("geometry.jl")
@@ -18,19 +20,23 @@ using DataFrames
 
 function manualdet(M::Matrix{T})::T where T
     if size(M) == (2, 2)
+        # dla macierzy 2x2 licz mnożeniem na krzyż
         M[1,1] * M[2,2] - M[1,2] * M[2,1]
     elseif size(M) == (3, 3)
-          M[1,1] * M[2,2] * M[3,3] + M[1,2] * M[2,3] * M[3,1] + M[1,3] * M[2,1] * M[3,2] - M[3,1] * M[2,2] * M[1,3] - M[3,2] * M[2,3] * M[1,1] - M[3,3] * M[2,1] * M[1,2]
+        # dla 3x3 licz wzorem Sarrusa
+        M[1,1] * M[2,2] * M[3,3] + M[1,2] * M[2,3] * M[3,1] + M[1,3] * M[2,1] * M[3,2] - M[3,1] * M[2,2] * M[1,3] - M[3,2] * M[2,3] * M[1,1] - M[3,3] * M[2,1] * M[1,2]
     else
         error("Invalid matrix size $(size(M))")
     end
 end
 
+# generatory danych jak w temacie zadania
 gendefa() = gendataseta(Float64, 100, -100., 100.)
 gendefb() = gendatasetb(Float64, 100, Point(0., 0.), 10.)
 gendefc() = gendatasetc(Float64, 100, Point(-10., -10.), Point(10., 10.))
 gendefd() = gendatasetd(Float64, 25, 20, Point(0., 0.), Point(10., 10.))
 
+# rysuje punkty w zbiorach danych
 function visualizedatasets()
     ds = [
         gendefa(),
@@ -53,6 +59,7 @@ function visualizedatasets()
     nothing
 end
 
+# podstawowe obliczanie otoczek dla domyślnych zbiorów
 function runalgos()
     ds = [
         gendefa(),
@@ -76,20 +83,25 @@ function runalgos()
         name = d.name
 
         ch = algo(d.pnts)
+
+        # zapisz punkty otoczki w pliku
         savech("output/$algo-$name.txt", ch)
 
+        # nanieś punkty zbioru
         scatter(
             Tuple.(d.pnts),
             ratio=1,
             label=false,
             title="$algoname, Dataset $name",
         )
+        # następnie punkty otoczki zaznacz na czerwono
         scatter!(
             Tuple.(ch),
             color=:red,
             markersize=5,
             label=false,
         )
+        # połącz punkty otoczki linią
         plot!(
             Tuple.([ch; ch[1]]),
             label=false,
@@ -99,6 +111,7 @@ function runalgos()
 end
 
 function runbenchmarks()
+    # tablica funkcji tworzących zbiory o podanej (n) liczbie punktów
     mkds = [
         n -> gendataseta(Float64, n, -100., 100.),
         n -> gendatasetb(Float64, n, Point(0., 0.), 10.),
@@ -112,20 +125,31 @@ function runbenchmarks()
         mkgraham(orient2x2, manualdet, e),
     ]
 
+    # tabela będzie zawierać wyniki benchmarków
     df = DataFrame(:n => 10:10:1000)
-    
+
+    # dla każdej kombinacji zbioru i algorytmu
     for mkd=mkds, algo=algos
+        # tablica czasów wykonania dla każdego n
         T = fill(Inf, length(df.n))
+
+        # wygeneruj zbiór
         ds = mkd.(df.n)
         dname = ds[1].name
+
+        # wykonaj 4 próby dla każdego n
         for sample=1:4, i=1:length(ds)
             d = ds[i]
+            # zmierz czas wykonania
             t = @elapsed algo(d.pnts)
             T[i] = min(T[i], t)
         end
+
+        # dodaj wynik dla tego algorymu
         insertcols!(df, "$dname-$algo" => T)
     end
 
+    # rysuje wykresy czasu wykonania
     for d='A':'D'
         plot(
             df.n,
@@ -147,6 +171,7 @@ function runbenchmarks()
 end
 
 function visualizegraham()
+    # zbiory danych
     ds = [
         gendefa(),
         gendefb(),
@@ -157,14 +182,19 @@ function visualizegraham()
     e = 1e-20
     algo = mkgraham(orient2x2, manualdet, e)
     
+    # dla każdego zbioru
     for d=ds
         name = d.name
+        # folder na klatki animacji
         mkpath("output/anim-graham-$name")
+
+        # wykonaj algorytm i zapisuj etapy do tablicy steps
         steps = Vector{GrahamStep}()
         algo(d.pnts, steps=steps)
 
         anim = Animation()
 
+        # narysuj punkty zbioru
         scatter(
             Tuple.(d.pnts),
             color=:blue,
@@ -174,7 +204,9 @@ function visualizegraham()
         frame(anim)
         savefig("output/anim-graham-$name/0")
 
+        # budowanie animacji
         for (i, step)=enumerate(steps)
+            # pozostałe punkty do rozważenia na niebiesko
             scatter(
                 Tuple.(step.remaining),
                 color=:blue,
@@ -183,17 +215,20 @@ function visualizegraham()
                 title="Step $i",
                 label="Remaining",
             )
+            # punkty otoczki na zielono
             scatter!(
                 Tuple.(step.ch),
                 color=:green,
                 label="Hull"
             )
+            # połącz punkty otoczki i narysuj strzałkę do ostatniego
             plot!(
                 Tuple.(step.ch),
                 color=:green,
                 line=:arrow,
                 label=false,
             )
+            # zaznacz aktualnie rozważany punkt na zielono lub niebiesko (jeśli zostanie zaraz dodany do otoczki)
             scatter!(
                 Tuple.([step.current]),
                 color=step.ok ? :green : :red,
@@ -209,6 +244,7 @@ function visualizegraham()
 end
 
 function visualizejarvis()
+    # zbiory danych, dla B weź mniej punktów aby zmniejszyć rozmiar animacji
     ds = [
         gendefa(),
         gendatasetb(Float64, 10, Point(0., 0.), 10.),
@@ -219,6 +255,7 @@ function visualizejarvis()
     e = 1e-20
     algo = mkjarvis(orient2x2, manualdet, e)
     
+    # identycznie jak dla grahama
     for d=ds
         name = d.name
         mkpath("output/anim-jarvis-$name")
@@ -287,36 +324,44 @@ function visualizejarvis()
     end
 end
 
+# funkcja pomocnicza rysująca otoczkę
 function plotch(d, algo, ch)
     name = d.name
+    # punkty zbioru
     scatter(
         Tuple.(d.pnts),
         ratio=1,
         label=false,
         title="$algo, Dataset $name",
     )
+    # punkty otoczki
     scatter!(
         Tuple.(ch),
         color=:red,
         markersize=5,
         label=false,
     )
+    # połącz linią
     plot!(
         Tuple.([ch; ch[1]]),
         label=false,
     )
 end
 
+# przypadek kiedy algorytmy nie działają
 function breakthings()
+    # zbiory danych generowane typem Float32
     ds = [
         gendatasetc(Float32, 100, Point(-1f20, -1f20), Point(1f20, 1f20)),
         gendatasetd(Float32, 25, 20, Point(0f0, 0f0), Point(1f20, 1f20)),
     ]
 
+    # algorytm również dobrany do typu Float32
     algo = mkgraham(orient2x2, det, 1f-20)
 
+    # kilka rysunków
     ch = algo(ds[1].pnts)
-    savech("output/broken-graham-C.txt", ch)
+    savech("output/broken-graham-C.txt", ch) # zapis punktów do pliku
     plotch(ds[1], "Graham", ch)
     savefig("output/broken-graham-C")
 

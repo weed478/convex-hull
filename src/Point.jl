@@ -1,3 +1,5 @@
+# Punkt i przydatne funkcje
+
 struct Point{T}
     x::T
     y::T
